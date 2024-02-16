@@ -1,0 +1,9 @@
+asgiref==3.7.2
+Django==5.0.2
+mysqlclient==2.2.4
+numpy==1.26.4
+PuLP==2.8.0
+PyQt6==6.6.1
+PyQt6-Qt6==6.6.1
+PyQt6-sip==13.6.0
+python-decouple==3.8
