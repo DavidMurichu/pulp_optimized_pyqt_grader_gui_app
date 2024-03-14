@@ -1,17 +1,17 @@
 #BACKENDS
 import os
 import math
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "feed_gui.settings")
+import subprocess
+import platform
+import psutil
+import sys
 
 #numba optimizer
-from numba import njit
+# from numba import njit
 
 
 
-import django
-django.setup()
-from feed.models import Feed, Fomular
-from django.shortcuts import get_object_or_404
+
 
 #OPTIMIZER
 
@@ -44,6 +44,12 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFont, QDoubleValidator, QGuiApplication
 from PyQt6.QtCore import Qt, pyqtSignal
 #files
+from setup import *
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "feed_gui.settings")
+import django
+django.setup()
+from feed.models import Feed, Fomular
+from django.shortcuts import get_object_or_404
 
 from backend import *
 from gui import *
