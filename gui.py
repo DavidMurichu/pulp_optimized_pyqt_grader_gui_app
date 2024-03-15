@@ -1,6 +1,8 @@
 from imports import *
 from setup import show_dialog
-try: 
+try:
+
+    id=[] 
     #GUI PYQT
     class DoubleSpinBoxDelegate(QItemDelegate):
         def createEditor(self, parent, option, index):
@@ -201,13 +203,13 @@ try:
 
                 ingredient_table= self.feed_store_ingredient_table
                 ingredient_table.setMaximumHeight(math.floor(self.scaled_height*0.8))
-                ingredient_table.setStyleSheet("background-color: #83C0C1;")
+                # ingredient_table.setStyleSheet("backgro")
                 self.populate_table(ingredient_table=ingredient_table)
                 grid_layout.addWidget(ingredient_table, 0,0)
 
 
                 self.central_controller.data_updated.connect(lambda: self.update_table(ingredient_table=self.feed_store_ingredient_table))
-                n_container=self.container(w=500, h=math.floor(self.scaled_height*0.8), color='#83C0C1')
+                n_container=self.container(w=500, h=math.floor(self.scaled_height*0.8), color='')
                 n_layout= QVBoxLayout(n_container)
 
                 nutrient_table=self.feed_store_nutrient_table
@@ -275,6 +277,8 @@ try:
             if id == None:
                 sender = self.sender()
                 id = sender.button_id
+                QMessageBox.warning( self, "deleted", "deleted")
+
             model=globals()[model]
             object = get_object_or_404(model, id=id)
             object.delete()
@@ -283,7 +287,6 @@ try:
             self.central_controller.data_updated.emit()
         
             self.populate_analysis(tables=self.fomular_tables, result={})
-            QMessageBox.warning( self, "deleted", "deleted")
 
         def edit_row(self, row, ingredient_table, nutrient_table):
             self.ingredient_table_cell_clicked(row=row, col=1)
@@ -358,11 +361,13 @@ try:
 
             
         def handle_checked_boxes(self, ingredient_table):
+            global fomulate_data
+            fomulate_data={}
             checked_ids_ingredient = self.collect_checked_ids(ingredient_table)
             # checked_ids_nutrient = self.collect_checked_ids(nutrient_table)
 
             nutrients, ingridients=fomulation_data(checked_ids_ingredient)
-            self.populate_fomulation_tab(nutrients=nutrients, ingridients=ingridients)
+            self.populate_fomulation_tab(nutrients=nutrients, ingridients=ingridients, id_name=checked_ids_ingredient)
             self.tab_widget.setTabEnabled(3, True)
             # print("Checked IDs (Nutrient):", checked_ids_nutrient)
 
@@ -379,7 +384,7 @@ try:
         def formulation_tab_widgets(self, formulation_tab):
             layout = QVBoxLayout(formulation_tab)
             
-            container=self.container(w=1000, h=500, color='#83C0C1')
+            container=self.container(w=1000, h=500, color='')
             self.c_layout=QGridLayout(container)
 
             self.fomulation_ingredient_table=self.create_table(column_count=3, row_count=0, header=['Ingredient', 'Min%', 'Max%'])
@@ -420,18 +425,23 @@ try:
             layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
     
-        def populate_fomulation_tab(self, nutrients, ingridients):
+        def populate_fomulation_tab(self, nutrients, ingridients, id_name):
+            global id
+            id=id_name
+      
             # Set the delegate for the second column
             delegate = DoubleSpinBoxDelegate()
             ingredient_table=self.fomulation_ingredient_table
             ingredient_table.setRowCount(len(ingridients))
             for row, ingredient in enumerate(ingridients):
                 inredient_item=QTableWidgetItem(ingredient)
+             
+
                 inredient_item.setFlags(inredient_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
                 ingredient_table.setItem(row, 0, inredient_item)
                 ingredient_table.setItemDelegateForColumn(1, delegate)
                 ingredient_table.setItemDelegateForColumn(2, delegate)
-
+             
 
 
             nutrient_table=self.fomulation_nutrient_table
@@ -454,15 +464,19 @@ try:
             for row in range(self.fomulation_ingredient_table.rowCount()):
                 ingredient_item = self.fomulation_ingredient_table.item(row, 0)
                 max_percentage_item = self.fomulation_ingredient_table.item(row, 2)
-                min_percentage_item = self.fomulation_ingredient_table.item(row, 1)
-
+                min_percentage_item = self.fomulation_ingredient_table.item(row, 1)          
                 ingredient = ingredient_item.text() if ingredient_item else ''
                 max_percentage = float(max_percentage_item.text()) if max_percentage_item and max_percentage_item.text() else None
                 min_percentage = float(min_percentage_item.text()) if min_percentage_item and min_percentage_item.text() else 0
+                
+              
+            
 
                 ingredient_data.append({'ingredient': ingredient, 'max': max_percentage, 'min': min_percentage})
+            
             # Collect data from the nutrient table
             nutrient_data = {}
+            ingridient_data = {}
             for row in range(self.fomulation_nutrient_table.rowCount()):
                 nutrient_item = self.fomulation_nutrient_table.item(row, 0)
                 max_percentage_item = self.fomulation_nutrient_table.item(row, 2)
@@ -473,9 +487,10 @@ try:
                 min_percentage = float(min_percentage_item.text()) if min_percentage_item and min_percentage_item.text() else 0
 
                 nutrient_data[nutrient]={'max': max_percentage, 'min': min_percentage}
-
-
-            result=prepare_fomulation_data(ingredient_data=ingredient_data, nutrient_data=nutrient_data)
+            
+        
+            
+            result=prepare_fomulation_data(ingredient_data=ingredient_data, nutrient_data=nutrient_data, id_name=id)
 
             self.populate_analysis(result, self.analysis_tables, op=1)
 
@@ -664,7 +679,8 @@ try:
             return group_box
         def shared_analysis(self):
             shared_widgets={}
-            container=self.container(w=math.floor(self.scaled_width), h=900, color='#83C0C1')
+            container=self.container(w=math.floor(self.scaled_width), h=900, color='')
+         
             grid_layout=shared_widgets['grid_layout']=QGridLayout(container)
 
             status_table=self.create_table(column_count=2, row_count=0, header=[ 'Status', 'Cost'])

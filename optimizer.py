@@ -135,4 +135,5 @@ def feed_fomulate(nutrient_requirements, ingredients_x):
         'selected_ingridients':selected_ingridients,
         'cost':Round(value(prob.objective))
     }
+    print(f'context{context}')
     return context

@@ -3,7 +3,7 @@ from imports import *
 from optimizer import feed_fomulate
 
 # BackEnds
-fomulate_data={}
+
 
 def check(num):
     if num == '' or num== None:
@@ -107,7 +107,7 @@ def fomulation_data(selected_id):
         obj = get_object_or_404(Feed, id=int(id))
         for ingridient, nutrients in obj.ingridient_batch.items():
             ingridients.append(ingridient)
-            fomulate_data[ingridient]=nutrients
+            # fomulate_data[ingridient]=nutrients
             for nutrient, value in nutrients.items():
                 if nutrient != 'cost':
                     if is_unique(nutrient, nutrients_required):
@@ -126,14 +126,27 @@ def ingridient_exist(check_ingridient):
                 return True          
     return False
 
-def prepare_fomulation_data(ingredient_data, nutrient_data):
+def prepare_fomulation_data(ingredient_data, nutrient_data, id_name):
+    fomulate_data={}
+    nutrients_required=set()
+    ingridients = []
+    for id in id_name:
+        obj = get_object_or_404(Feed, id=int(id))
+        for ingridient, nutrients in obj.ingridient_batch.items():
+            ingridients.append(ingridient)
+            fomulate_data[ingridient]=nutrients
+            for nutrient, value in nutrients.items():
+                if nutrient != 'cost':
+                    if is_unique(nutrient, nutrients_required):
+                        nutrients_required.add(nutrient)
     for data in ingredient_data:
         for ingredient ,nutrients in fomulate_data.items():
             if data['ingredient']==ingredient:
                 nutrients['max']=data['max']
                 nutrients['min']=data['min']
 
-    return  feed_fomulate(nutrient_requirements=nutrient_data, ingredients_x=fomulate_data)
+
+    return feed_fomulate(nutrient_requirements=nutrient_data, ingredients_x=fomulate_data)
 
 
 
